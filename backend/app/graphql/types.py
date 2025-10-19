@@ -12,3 +12,16 @@ class UserType:
     dob: str  # or date
     country: str
     agreed: bool
+
+
+@strawberry.input
+class LoginInput:
+    email: str
+    password: str
+
+@strawberry.type
+class LoginResponse:
+    success: bool
+    message: str
+    token: str | None = None
+

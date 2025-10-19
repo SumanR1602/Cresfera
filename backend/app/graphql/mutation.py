@@ -1,11 +1,12 @@
 import strawberry  # type: ignore
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.models.user import User
 from app.config.database import SessionLocal
-from app.utils.hashing import hash_password
-from .types import UserType
-from app.schemas.register_schema import UserCreate
+from app.utils.hashing import hash_password,verify_password
+from .types import UserType, LoginInput, LoginResponse
+from app.schemas.user_schema import UserCreate, UserLogin
 from pydantic import ValidationError
+from app.utils.jwt import create_access_token
 
 @strawberry.type
 class Mutation:
@@ -69,3 +70,17 @@ class Mutation:
             country=user.country,
             agreed=user.agreed,
         )
+    @strawberry.mutation
+    def login(self, login_data: LoginInput) -> LoginResponse:
+        validated_data = UserLogin(email=login_data.email, password=login_data.password)
+
+        with SessionLocal() as db:
+            user = db.query(User).filter(User.email == validated_data.email).first()
+            if not user:
+                return LoginResponse(success=False, message="User not found")
+
+            if not verify_password(validated_data.password, user.hashed_password):
+                return LoginResponse(success=False, message="Incorrect password")
+
+            token = create_access_token({"user_id": user.id})
+            return LoginResponse(success=True, message="Login successful", token=token)

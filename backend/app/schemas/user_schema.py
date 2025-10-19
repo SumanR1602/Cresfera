@@ -36,3 +36,14 @@ class UserCreate(BaseModel):
         if len(v.encode("utf-8")) > 72:
             raise ValueError("Password too long (max 72 bytes)")
         return v
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=1, description="Password cannot be empty")
+
+    @validator("password")
+    def password_length_limit(cls, v):
+        if len(v.encode("utf-8")) > 72:
+            raise ValueError("Password too long (max 72 bytes)")
+        return v
