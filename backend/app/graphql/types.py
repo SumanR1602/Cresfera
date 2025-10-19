@@ -1,6 +1,7 @@
 # app/graphql/types.py
 import strawberry # type: ignore
-from datetime import date
+from datetime import datetime
+from strawberry.scalars import JSON # type: ignore
 
 @strawberry.type
 class UserType:
@@ -36,3 +37,16 @@ class UserProfile:
     mobile: str
     dob: str
     country: str
+
+
+@strawberry.type
+class PortfolioType:
+    id: strawberry.ID
+    user_id: strawberry.ID
+    portfolio_name: str
+    tenure: int
+    amount: float
+    risk_profile: str
+    recommendation: JSON 
+    created_at: datetime
+    updated_at: datetime

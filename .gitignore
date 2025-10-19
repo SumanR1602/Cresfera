@@ -9,3 +9,4 @@ alembic/
 alembic.ini
 .env
 mutations.txt
+__pycache__/

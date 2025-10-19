@@ -6,7 +6,7 @@ from app.models.user import User
 from app.graphql.types import UserProfile
 
 @strawberry.type
-class Query:
+class ProfileQuery:
     @strawberry.field
     def profile(self, info) -> UserProfile:
         current_user = get_current_user(info)

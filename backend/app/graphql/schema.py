@@ -2,10 +2,16 @@
 import strawberry # type: ignore
 from .mutations.login_mutation import LoginMutation
 from .mutations.register_mutation import RegisterMutation
-from .queries.profile_query import Query
+from .mutations.portfolio_mutation import PortfolioMutation
+from .queries.profile_query import ProfileQuery
+from .queries.portfolio_query import PortfolioQuery
 
 @strawberry.type
-class Mutation(RegisterMutation, LoginMutation):
+class Query(ProfileQuery, PortfolioQuery):
+    pass
+
+@strawberry.type
+class Mutation(RegisterMutation, LoginMutation, PortfolioMutation):
     pass
 
 schema = strawberry.Schema(query=Query,mutation=Mutation)

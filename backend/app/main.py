@@ -3,7 +3,8 @@ from strawberry.fastapi import GraphQLRouter #type: ignore
 from app.graphql.schema import schema
 
 from app.config.database import Base, engine
-from app.models.user import User 
+from app.models.user import User
+from app.models.portfolio import Portfolio
 
 app = FastAPI(title="Cresfera Backend")
 
