@@ -2,7 +2,7 @@
 import strawberry # type: ignore
 from .mutations.login_mutation import LoginMutation
 from .mutations.register_mutation import RegisterMutation
-from .query import Query
+from .queries.profile_query import Query
 
 @strawberry.type
 class Mutation(RegisterMutation, LoginMutation):

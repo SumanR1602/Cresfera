@@ -25,3 +25,14 @@ class LoginResponse:
     message: str
     token: str | None = None
 
+
+
+@strawberry.type
+class UserProfile:
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+    mobile: str
+    dob: str
+    country: str

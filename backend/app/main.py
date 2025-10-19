@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
 from strawberry.fastapi import GraphQLRouter #type: ignore
 from app.graphql.schema import schema
 
@@ -14,5 +14,8 @@ def startup_event():
     print("Database tables created!")
 
 # GraphQL setup
-graphql_app = GraphQLRouter(schema)
+
+def get_context(request: Request):
+    return {"request": request}
+graphql_app = GraphQLRouter(schema,context_getter=get_context)
 app.include_router(graphql_app, prefix="/graphql")
