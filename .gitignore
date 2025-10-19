@@ -4,3 +4,8 @@ package-lock.json
 package.json
 commitlint.config.js
 docs/
+venv/
+alembic/
+alembic.ini
+.env
+mutations.txt
