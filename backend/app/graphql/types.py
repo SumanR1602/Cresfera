@@ -9,7 +9,7 @@ class UserType:
     last_name: str
     email: str
     mobile: str
-    dob: str  # or date
+    dob: str 
     country: str
     agreed: bool
 
