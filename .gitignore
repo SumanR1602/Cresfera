@@ -10,3 +10,4 @@ alembic.ini
 .env
 mutations.txt
 __pycache__/
+backend/logs/
