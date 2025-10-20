@@ -6,6 +6,7 @@ from app.config.database import SessionLocal
 from app.models.portfolio import Portfolio
 from app.graphql.types import PortfolioType
 from strawberry.scalars import JSON # type: ignore
+from app.agents.recommandation import generate_investment_recommendation
 
 
 @strawberry.type
@@ -18,11 +19,11 @@ class PortfolioMutation:
         portfolio_name: str,
         tenure: int,
         amount: float,
-        risk_profile: str,
-        recommendation: JSON
+        risk_profile: str
     ) -> PortfolioType:
         current_user = get_current_user(info)
         user_id = current_user["user_id"]
+        recommendation = generate_investment_recommendation(amount=amount,tenure=tenure,risk_profile=risk_profile)
 
         with SessionLocal() as db:
             portfolio = Portfolio(
@@ -115,3 +116,37 @@ class PortfolioMutation:
             db.delete(portfolio)
             db.commit()
         return True
+    
+
+    @strawberry.mutation
+    def simulate_portfolio(self, info, portfolio_id: int) -> PortfolioType:
+        current_user = get_current_user(info)
+        user_id = current_user["user_id"]
+
+        with SessionLocal() as db:
+            portfolio = db.query(Portfolio).filter(
+                Portfolio.id == portfolio_id,
+                Portfolio.user_id == user_id
+            ).first()
+            if not portfolio:
+                raise Exception("Portfolio not found")
+
+            new_recommendation = generate_investment_recommendation(
+                portfolio.amount, portfolio.tenure, portfolio.risk_profile
+            )
+
+            portfolio.recommendation = new_recommendation
+            db.commit()
+            db.refresh(portfolio)
+
+        return PortfolioType(
+        id=portfolio.id,
+        user_id=portfolio.user_id,
+        portfolio_name=portfolio.portfolio_name,
+        tenure=portfolio.tenure,
+        amount=float(portfolio.amount),
+        risk_profile=portfolio.risk_profile,
+        recommendation=portfolio.recommendation,
+        created_at=portfolio.created_at,
+        updated_at=portfolio.updated_at
+        )

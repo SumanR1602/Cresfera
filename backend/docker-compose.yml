@@ -11,6 +11,7 @@ services:
       - db
     environment:
       DATABASE_URL: postgresql://postgres:cresfera@db:5432/cresfera
+      GEMINI_API_KEY: AIzaSyB59a9l1Azl42byeDfOkE_mEvHjKhGp-7k
     networks:
       - cresfera_network
 

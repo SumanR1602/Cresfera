@@ -2,6 +2,7 @@
 import strawberry # type: ignore
 from datetime import datetime
 from strawberry.scalars import JSON # type: ignore
+from typing import Optional
 
 @strawberry.type
 class UserType:
@@ -47,6 +48,6 @@ class PortfolioType:
     tenure: int
     amount: float
     risk_profile: str
-    recommendation: JSON 
+    recommendation: Optional[JSON] = None
     created_at: datetime
     updated_at: datetime
