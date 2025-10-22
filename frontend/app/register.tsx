@@ -32,7 +32,9 @@ const RegisterScreen: React.FC = () => {
         setForm({ ...form, [key]: value });
     };
 
-    const handleRegister = () => {
+    const GRAPHQL_ENDPOINT = 'http://localhost:8000/graphql';
+
+    const handleRegister = async () => {
         if (!form.first_name || !form.email || !form.password) {
             Alert.alert('Error', 'Please fill all required fields');
             return;
@@ -41,9 +43,86 @@ const RegisterScreen: React.FC = () => {
             Alert.alert('Error', 'Passwords do not match');
             return;
         }
-        console.log('Registering user:', form);
-        // TODO: connect to backend GraphQL mutation
+        if (!form.agreed) {
+            Alert.alert('Error', 'You must agree to the Terms and Privacy Policy');
+            return;
+        }
+
+        const mutation = `
+            mutation RegisterUser(
+                $firstName: String!,
+                $lastName: String!,
+                $email: String!,
+                $mobile: String!,
+                $password: String!,
+                $confirmPassword: String!,
+                $dob: String!,
+                $country: String!,
+                $agreed: Boolean!
+        ) {
+            registerUser(
+                firstName: $firstName,
+                lastName: $lastName,
+                email: $email,
+                mobile: $mobile,
+                password: $password,
+                confirmPassword: $confirmPassword,
+                dob: $dob,
+                country: $country,
+                agreed: $agreed
+        ) {
+        id
+        firstName
+        lastName
+        email
+    }
+    }
+
+    ` ;
+
+        try {
+            const response = await fetch(GRAPHQL_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: {
+                        firstName: form.first_name,
+                        lastName: form.last_name,
+                        email: form.email,
+                        mobile: form.mobile,
+                        password: form.password,
+                        confirmPassword: form.confirm_password,
+                        dob: form.dob,
+                        country: form.country,
+                        agreed: form.agreed,
+                    },
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.errors) {
+                Alert.alert('Registration Error', data.errors[0].message);
+                console.log('GraphQL errors:', data.errors);
+                return;
+            }
+
+            Alert.alert('Success', `Welcome ${data.data.registerUser.firstName}!`);
+            console.log('Registered user:', data.data.registerUser);
+            router.push("/login");
+
+        } catch (error: any) {
+            console.error('Registration failed', error);
+            Alert.alert('Error', error.message || 'Something went wrong. Please try again.');
+        }
+
     };
+
 
     return (
         <KeyboardAvoidingView
@@ -125,8 +204,6 @@ const RegisterScreen: React.FC = () => {
                     onChangeText={(v) => handleChange('confirm_password', v)}
                     placeholderTextColor="#9ca3af"
                 />
-
-                {/* Terms Agreement */}
                 {/* Terms Agreement */}
                 <View style={styles.checkboxContainer}>
                     <TouchableOpacity
@@ -201,36 +278,36 @@ const styles = StyleSheet.create({
     halfInput: {
         width: '48%',
     },
-   checkboxContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  width: '100%',
-  marginVertical: 12,
-},
-checkbox: {
-  width: 20,
-  height: 20,
-  borderRadius: 5,
-  borderWidth: 1.5,
-  borderColor: '#2563eb',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 10,
-  backgroundColor: '#fff',
-},
-checkedBox: {
-  backgroundColor: '#2563eb',
-},
-checkmark: {
-  color: '#fff',
-  fontSize: 14,
-  fontWeight: 'bold',
-},
-checkboxText: {
-  fontSize: width < 400 ? 13 : 14,
-  color: '#374151',
-  flexShrink: 1,
-},
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        marginVertical: 12,
+    },
+    checkbox: {
+        width: 20,
+        height: 20,
+        borderRadius: 5,
+        borderWidth: 1.5,
+        borderColor: '#2563eb',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10,
+        backgroundColor: '#fff',
+    },
+    checkedBox: {
+        backgroundColor: '#2563eb',
+    },
+    checkmark: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    checkboxText: {
+        fontSize: width < 400 ? 13 : 14,
+        color: '#374151',
+        flexShrink: 1,
+    },
 
     button: {
         width: '100%',
