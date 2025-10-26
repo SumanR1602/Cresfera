@@ -9,13 +9,17 @@ import {
     KeyboardAvoidingView,
     Platform,
     Dimensions,
-    Switch,
     Alert,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import { GRAPHQL_ENDPOINT } from '../config/constants';
+
 
 const { width } = Dimensions.get('window');
 
 const RegisterScreen: React.FC = () => {
+    const router = useRouter();
+
     const [form, setForm] = useState({
         first_name: '',
         last_name: '',
@@ -31,8 +35,6 @@ const RegisterScreen: React.FC = () => {
     const handleChange = (key: string, value: any) => {
         setForm({ ...form, [key]: value });
     };
-
-    const GRAPHQL_ENDPOINT = 'http://localhost:8000/graphql';
 
     const handleRegister = async () => {
         if (!form.first_name || !form.email || !form.password) {
@@ -59,26 +61,25 @@ const RegisterScreen: React.FC = () => {
                 $dob: String!,
                 $country: String!,
                 $agreed: Boolean!
-        ) {
-            registerUser(
-                firstName: $firstName,
-                lastName: $lastName,
-                email: $email,
-                mobile: $mobile,
-                password: $password,
-                confirmPassword: $confirmPassword,
-                dob: $dob,
-                country: $country,
-                agreed: $agreed
-        ) {
-        id
-        firstName
-        lastName
-        email
-    }
-    }
-
-    ` ;
+            ) {
+                registerUser(
+                    firstName: $firstName,
+                    lastName: $lastName,
+                    email: $email,
+                    mobile: $mobile,
+                    password: $password,
+                    confirmPassword: $confirmPassword,
+                    dob: $dob,
+                    country: $country,
+                    agreed: $agreed
+                ) {
+                    id
+                    firstName
+                    lastName
+                    email
+                }
+            }
+        `;
 
         try {
             const response = await fetch(GRAPHQL_ENDPOINT, {
@@ -112,17 +113,17 @@ const RegisterScreen: React.FC = () => {
                 return;
             }
 
-            Alert.alert('Success', `Welcome ${data.data.registerUser.firstName}!`);
-            console.log('Registered user:', data.data.registerUser);
-            router.push("/login");
+            // Navigate to Success screen with firstName as param
+            router.replace({
+                pathname: '/success',
+                params: { firstName: data.data.registerUser.firstName },
+            });
 
         } catch (error: any) {
             console.error('Registration failed', error);
             Alert.alert('Error', error.message || 'Something went wrong. Please try again.');
         }
-
     };
-
 
     return (
         <KeyboardAvoidingView
@@ -204,6 +205,7 @@ const RegisterScreen: React.FC = () => {
                     onChangeText={(v) => handleChange('confirm_password', v)}
                     placeholderTextColor="#9ca3af"
                 />
+
                 {/* Terms Agreement */}
                 <View style={styles.checkboxContainer}>
                     <TouchableOpacity
@@ -215,15 +217,13 @@ const RegisterScreen: React.FC = () => {
                     <Text style={styles.checkboxText}>I agree to the Terms and Privacy Policy</Text>
                 </View>
 
-
-
                 <TouchableOpacity style={styles.button} onPress={handleRegister}>
                     <Text style={styles.buttonText}>Register</Text>
                 </TouchableOpacity>
 
                 <Text style={styles.footerText}>
                     Already have an account?{' '}
-                    <Text style={styles.link} onPress={() => console.log('Navigate to login')}>
+                    <Text style={styles.link} onPress={() => router.push('/login')}>
                         Login
                     </Text>
                 </Text>
@@ -308,7 +308,6 @@ const styles = StyleSheet.create({
         color: '#374151',
         flexShrink: 1,
     },
-
     button: {
         width: '100%',
         backgroundColor: '#2563eb',

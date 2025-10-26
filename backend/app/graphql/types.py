@@ -25,8 +25,8 @@ class LoginInput:
 class LoginResponse:
     success: bool
     message: str
-    token: str | None = None
-
+    access_token: str | None = None
+    refresh_token: str | None = None
 
 
 @strawberry.type
